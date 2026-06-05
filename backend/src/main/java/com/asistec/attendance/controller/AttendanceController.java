@@ -1,8 +1,9 @@
 package com.asistec.attendance.controller;
 
-import com.asistec.attendance.dto.SaveAttendanceRequest;
+
 import com.asistec.attendance.dto.SectionAttendanceResponse;
 import com.asistec.attendance.service.AttendanceService;
+import com.asistec.attendance.dto.SaveAttendanceRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

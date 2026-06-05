@@ -5,9 +5,6 @@ import { RouterOutlet } from '@angular/router';
   selector: 'app-root',
   standalone: true,
   imports: [RouterOutlet],
-  template: `
-    <h1>Asistec</h1>
-    <router-outlet></router-outlet>
-  `
+  template: `<main class="app-shell"><router-outlet /></main>`
 })
 export class AppComponent {}

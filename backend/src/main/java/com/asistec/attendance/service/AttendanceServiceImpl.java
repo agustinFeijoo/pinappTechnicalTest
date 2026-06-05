@@ -26,6 +26,8 @@ public class AttendanceServiceImpl implements AttendanceService {
     private final SectionRepository sectionRepository;
     private final AttendanceRecordRepository attendanceRepository;
 
+    private final AttendanceEventService attendanceEventService;
+
     @Override
     @Transactional(readOnly = true)
     public SectionAttendanceResponse getTodayAttendance(
@@ -34,9 +36,9 @@ public class AttendanceServiceImpl implements AttendanceService {
 
         Section section = sectionRepository.findById(sectionId)
                 .orElseThrow(() ->
-        new ResourceNotFoundException(
-                "Section not found"
-        ));
+                        new ResourceNotFoundException(
+                                "Section not found"
+                        ));
 
         LocalDate today = LocalDate.now();
 
@@ -84,7 +86,7 @@ public class AttendanceServiceImpl implements AttendanceService {
         sectionRepository.findById(sectionId)
                 .orElseThrow(() ->
                         new ResourceNotFoundException(
-                                "Student not found"
+                                "Section not found"
                         ));
 
         for (AttendanceStudentRequest item : request.students()) {
@@ -92,7 +94,9 @@ public class AttendanceServiceImpl implements AttendanceService {
             Student student = studentRepository.findById(
                     item.studentId()
             ).orElseThrow(() ->
-                    new RuntimeException("Student not found"));
+                    new ResourceNotFoundException(
+                            "Student not found"
+                    ));
 
             if (!student.getSection()
                     .getId()
@@ -121,5 +125,7 @@ public class AttendanceServiceImpl implements AttendanceService {
 
             attendanceRepository.save(record);
         }
+
+        attendanceEventService.publishAttendanceUpdated();
     }
 }

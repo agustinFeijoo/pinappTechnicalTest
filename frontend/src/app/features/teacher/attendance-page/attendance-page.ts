@@ -1,13 +1,21 @@
-import { Component, OnInit } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  ChangeDetectorRef
+} from '@angular/core';
+
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+
+import { finalize } from 'rxjs';
 
 import {
   AttendanceStatus,
   SectionAttendanceResponse
 } from '../../../core/models/attendance.model';
 
-import { AttendanceService } from '../../../core/services/attendance.service';
+import { AttendanceService }
+from '../../../core/services/attendance.service';
 
 @Component({
   selector: 'app-attendance-page',
@@ -16,9 +24,10 @@ import { AttendanceService } from '../../../core/services/attendance.service';
     CommonModule,
     FormsModule
   ],
-  templateUrl: './attendance-page.component.html'
+  templateUrl: './attendance-page.html',
+  styleUrl: './attendance-page.css'
 })
-export class AttendancePageComponent implements OnInit {
+export class AttendancePage implements OnInit {
 
   attendance: SectionAttendanceResponse | null = null;
 
@@ -31,51 +40,61 @@ export class AttendancePageComponent implements OnInit {
   errorMessage = '';
 
   constructor(
-    private attendanceService: AttendanceService
+    private attendanceService: AttendanceService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
 
-    console.log('AttendancePageComponent initialized');
+    console.log('AttendancePage initialized');
 
     this.loadAttendance();
   }
 
   loadAttendance(): void {
 
-    console.log(
-      'Loading attendance for section:',
-      this.selectedSection
-    );
+    console.log('Loading attendance...');
 
     this.loading = true;
+
     this.errorMessage = '';
 
     this.attendanceService
       .getTodayAttendance(this.selectedSection)
+      .pipe(
+        finalize(() => {
+
+          this.loading = false;
+
+          this.cdr.detectChanges();
+
+          console.log(
+            'Loading finished'
+          );
+        })
+      )
       .subscribe({
+
         next: (data) => {
 
           console.log(
-            'Attendance loaded successfully:',
+            'Attendance received',
             data
           );
 
           this.attendance = data;
-          this.loading = false;
+
+          this.cdr.detectChanges();
         },
 
         error: (error) => {
 
-          console.error(
-            'Error loading attendance:',
-            error
-          );
+          console.error(error);
 
           this.errorMessage =
             'Failed to load attendance';
 
-          this.loading = false;
+          this.cdr.detectChanges();
         }
       });
   }
@@ -101,9 +120,14 @@ export class AttendancePageComponent implements OnInit {
       return;
     }
 
+    this.loading = true;
+
     const request = {
       students: this.attendance.students
-        .filter(student => student.status !== null)
+        .filter(
+          student =>
+            student.status !== null
+        )
         .map(student => ({
           studentId: student.studentId,
           status: student.status!
@@ -115,24 +139,33 @@ export class AttendancePageComponent implements OnInit {
         this.selectedSection,
         request
       )
+      .pipe(
+        finalize(() => {
+
+          this.loading = false;
+
+          this.cdr.detectChanges();
+        })
+      )
       .subscribe({
+
         next: () => {
 
           this.hasChanges = false;
 
-          alert('Attendance saved successfully');
+          alert(
+            'Attendance saved successfully'
+          );
 
           this.loadAttendance();
         },
 
         error: (error) => {
 
-          console.error(
-            'Error saving attendance:',
-            error
-          );
+          console.error(error);
 
-          alert('Failed to save attendance');
+          this.errorMessage =
+            'Failed to save attendance';
         }
       });
   }

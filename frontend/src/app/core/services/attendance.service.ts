@@ -1,37 +1,28 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 
+import { API_BASE } from '../constants/api';
 import {
   SaveAttendanceRequest,
   SectionAttendanceResponse
 } from '../models/attendance.model';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable({ providedIn: 'root' })
 export class AttendanceService {
 
-  private readonly api =
-    'http://localhost:8080/api/sections';
+  private readonly url = `${API_BASE}/sections`;
 
-  constructor(
-    private http: HttpClient
-  ) {}
+  constructor(private http: HttpClient) {}
 
   getTodayAttendance(sectionId: number) {
-
     return this.http.get<SectionAttendanceResponse>(
-      `${this.api}/${sectionId}/attendance/today`
+      `${this.url}/${sectionId}/attendance/today`
     );
   }
 
-  saveAttendance(
-    sectionId: number,
-    request: SaveAttendanceRequest
-  ) {
-
+  saveAttendance(sectionId: number, request: SaveAttendanceRequest) {
     return this.http.put(
-      `${this.api}/${sectionId}/attendance/today`,
+      `${this.url}/${sectionId}/attendance/today`,
       request
     );
   }

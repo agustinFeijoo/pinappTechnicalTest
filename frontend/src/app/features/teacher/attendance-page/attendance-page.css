@@ -1,0 +1,52 @@
+.page {
+  max-width: 900px;
+  margin: 2rem auto;
+}
+
+.page-header {
+  margin-bottom: 1.5rem;
+}
+
+.card {
+  padding: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.data-table th,
+.data-table td {
+  border-bottom: 1px solid #ddd;
+  padding: 0.75rem;
+  text-align: left;
+}
+
+select {
+  min-width: 160px;
+  padding: 0.4rem;
+}
+
+.actions {
+  margin-top: 1rem;
+}
+
+.btn {
+  padding: 0.7rem 1rem;
+  cursor: pointer;
+}
+
+.btn-primary {
+  font-weight: 600;
+}
+
+.muted {
+  color: #666;
+}
+
+.error {
+  color: #c62828;
+}

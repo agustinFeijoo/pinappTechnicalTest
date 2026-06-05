@@ -1,0 +1,98 @@
+<section class="page">
+
+  <header class="page-header">
+    <h2>Attendance Registration</h2>
+    <p>Register today's attendance for the selected section.</p>
+  </header>
+
+  @if (loading) {
+    <p class="muted">Loading attendance...</p>
+  }
+
+  @if (errorMessage) {
+    <p class="error">{{ errorMessage }}</p>
+  }
+
+  @if (attendance) {
+
+    <div class="card">
+
+      <table class="data-table">
+
+        <thead>
+          <tr>
+            <th>Student</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+
+        <tbody>
+
+          @for (
+            student of attendance.students;
+            track student.studentId
+          ) {
+
+            <tr>
+
+              <td>
+                {{ student.fullName }}
+              </td>
+
+              <td>
+
+                <select
+                  [ngModel]="student.status"
+                  (ngModelChange)="
+                    updateStatus(
+                      $index,
+                      $event
+                    )
+                  "
+                >
+
+                  <option [ngValue]="null">
+                    Select status
+                  </option>
+
+                  <option value="PRESENT">
+                    Present
+                  </option>
+
+                  <option value="ABSENT">
+                    Absent
+                  </option>
+
+                  <option value="LATE">
+                    Late
+                  </option>
+
+                </select>
+
+              </td>
+
+            </tr>
+
+          }
+
+        </tbody>
+
+      </table>
+
+    </div>
+
+    <div class="actions">
+
+    <button
+  class="btn btn-primary"
+  [disabled]="!hasChanges || loading"
+  (click)="save()"
+>
+  Save Attendance
+</button>
+
+    </div>
+
+  }
+
+</section>
