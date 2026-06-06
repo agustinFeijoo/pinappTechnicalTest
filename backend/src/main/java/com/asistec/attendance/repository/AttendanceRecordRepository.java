@@ -26,4 +26,10 @@ public interface AttendanceRecordRepository
             LocalDate startDate,
             LocalDate endDate
     );
+
+    List<AttendanceRecord>
+    findByStudentSectionIdAndAttendanceDate(
+            Long sectionId,
+            LocalDate attendanceDate
+    );
 }

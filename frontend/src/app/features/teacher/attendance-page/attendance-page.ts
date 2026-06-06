@@ -16,6 +16,7 @@ import {
 
 import { AttendanceService }
 from '../../../core/services/attendance.service';
+import { SectionService } from '../../../core/services/section.service';
 
 @Component({
   selector: 'app-attendance-page',
@@ -33,23 +34,51 @@ export class AttendancePage implements OnInit {
 
   selectedSection = 1;
 
+  sections = [
+  { id: 1, name: '3A' },
+  { id: 2, name: '3B' },
+  { id: 3, name: '4A' },
+  { id: 4, name: '4B' }
+];
   hasChanges = false;
 
   loading = false;
 
   errorMessage = '';
 
-  constructor(
-    private attendanceService: AttendanceService,
-    private cdr: ChangeDetectorRef
-  ) {}
+constructor(
+  private attendanceService: AttendanceService,
+  private sectionService: SectionService,
+  private cdr: ChangeDetectorRef
+) {}
+ngOnInit(): void {
 
-  ngOnInit(): void {
+  this.sectionService
+    .getSections()
+    .subscribe({
 
-    console.log('AttendancePage initialized');
+      next: sections => {
 
-    this.loadAttendance();
-  }
+        this.sections = sections;
+
+        if (sections.length > 0) {
+
+          this.selectedSection =
+            sections[0].id;
+
+          this.loadAttendance();
+        }
+      },
+
+      error: error => {
+
+        console.error(error);
+
+        this.errorMessage =
+          'Failed to load sections';
+      }
+    });
+}
 
   loadAttendance(): void {
 
@@ -113,6 +142,14 @@ export class AttendancePage implements OnInit {
 
     this.hasChanges = true;
   }
+  onSectionChange(): void {
+
+  this.hasChanges = false;
+
+  this.attendance = null;
+
+  this.loadAttendance();
+}
 
   save(): void {
 

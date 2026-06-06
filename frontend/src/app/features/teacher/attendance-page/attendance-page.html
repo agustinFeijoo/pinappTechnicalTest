@@ -4,6 +4,34 @@
     <h2>Attendance Registration</h2>
     <p>Register today's attendance for the selected section.</p>
   </header>
+  <div class="card">
+
+  <label for="section">
+    Section
+  </label>
+
+  <select
+    id="section"
+    [(ngModel)]="selectedSection"
+    (change)="onSectionChange()"
+  >
+
+    @for (
+      section of sections;
+      track section.id
+    ) {
+
+      <option [value]="section.id">
+        {{ section.name }}
+      </option>
+
+    }
+
+  </select>
+
+</div>
+
+<br>
 
   @if (loading) {
     <p class="muted">Loading attendance...</p>

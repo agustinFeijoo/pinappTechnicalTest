@@ -76,30 +76,63 @@ public class DataLoader {
             );
 
             // Students
-            List<Student> students3A = createStudents(section3A,
-                    "Juan", "Pedro", "Luis", "Ana", "María", "Lucía");
+            List<Student> students3A = createStudents(
+                    section3A,
+                    "Juan",
+                    "Pedro",
+                    "Luis",
+                    "Ana",
+                    "María",
+                    "Lucía"
+            );
 
-            List<Student> students3B = createStudents(section3B,
-                    "Carlos", "Jorge", "Sofía", "Valentina", "Camila", "Elena");
+            List<Student> students3B = createStudents(
+                    section3B,
+                    "Carlos",
+                    "Jorge",
+                    "Sofía",
+                    "Valentina",
+                    "Camila",
+                    "Elena"
+            );
 
-            List<Student> students4A = createStudents(section4A,
-                    "Martín", "Tomás", "Mateo", "Julieta", "Emma", "Mora");
+            List<Student> students4A = createStudents(
+                    section4A,
+                    "Martín",
+                    "Tomás",
+                    "Mateo",
+                    "Julieta",
+                    "Emma",
+                    "Mora"
+            );
 
-            List<Student> students4B = createStudents(section4B,
-                    "Agustín", "Thiago", "Benjamín", "Olivia", "Isabella", "Martina");
+            List<Student> students4B = createStudents(
+                    section4B,
+                    "Agustín",
+                    "Thiago",
+                    "Benjamín",
+                    "Olivia",
+                    "Isabella",
+                    "Martina"
+            );
 
             studentRepository.saveAll(students3A);
             studentRepository.saveAll(students3B);
             studentRepository.saveAll(students4A);
             studentRepository.saveAll(students4B);
 
-            // Historical attendance for last 5 business days
+            /*
+             * Seed attendance for:
+             * - 3A
+             * - 3B
+             * - 4A
+             *
+             * Leave 4B without attendance today so
+             * coordinator can see one pending section.
+             */
             seedAttendanceForLastBusinessDays(students3A);
+            seedAttendanceForLastBusinessDays(students3B);
             seedAttendanceForLastBusinessDays(students4A);
-
-            // IMPORTANT:
-            // 3B and 4B will have NO attendance today
-            // so coordinator can see pending sections.
         };
     }
 
@@ -115,7 +148,8 @@ public class DataLoader {
                                 .firstName(name)
                                 .lastName("Student")
                                 .section(section)
-                                .build())
+                                .build()
+                )
                 .toList();
     }
 
@@ -146,15 +180,14 @@ public class DataLoader {
                         status = AttendanceStatus.LATE;
                     }
 
-                    AttendanceRecord record =
+                    attendanceRepository.save(
                             AttendanceRecord.builder()
                                     .student(student)
                                     .attendanceDate(date)
                                     .status(status)
                                     .updatedAt(LocalDateTime.now())
-                                    .build();
-
-                    attendanceRepository.save(record);
+                                    .build()
+                    );
                 }
 
                 createdDays++;

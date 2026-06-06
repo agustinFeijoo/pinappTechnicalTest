@@ -1,7 +1,8 @@
 import {
   Component,
   OnInit,
-  OnDestroy
+  OnDestroy,
+  ChangeDetectorRef
 } from '@angular/core';
 
 import { CommonModule } from '@angular/common';
@@ -40,7 +41,8 @@ export class DashboardPage
   private refreshSubscription?: Subscription;
 
   constructor(
-    private reportService: ReportService
+    private reportService: ReportService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -63,6 +65,10 @@ export class DashboardPage
 
   private refreshData(): void {
 
+    this.loading = true;
+
+    this.errorMessage = '';
+
     this.loadSummary();
 
     this.loadPendingSections();
@@ -73,9 +79,12 @@ export class DashboardPage
     this.reportService
       .getTodaySummary()
       .subscribe({
+
         next: data => {
 
           this.summaries = data;
+
+          this.cdr.detectChanges();
         },
 
         error: err => {
@@ -84,6 +93,8 @@ export class DashboardPage
 
           this.errorMessage =
             'Failed to load attendance summary';
+
+          this.cdr.detectChanges();
         }
       });
   }
@@ -93,11 +104,14 @@ export class DashboardPage
     this.reportService
       .getPendingSections()
       .subscribe({
+
         next: data => {
 
           this.pendingSections = data;
 
           this.loading = false;
+
+          this.cdr.detectChanges();
         },
 
         error: err => {
@@ -108,6 +122,8 @@ export class DashboardPage
             'Failed to load pending sections';
 
           this.loading = false;
+
+          this.cdr.detectChanges();
         }
       });
   }
