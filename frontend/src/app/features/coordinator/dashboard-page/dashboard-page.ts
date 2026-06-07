@@ -4,9 +4,9 @@ import {
   OnDestroy,
   ChangeDetectorRef
 } from '@angular/core';
-
+import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
-
+import { FormsModule } from '@angular/forms';
 import {
   interval,
   Subscription
@@ -23,7 +23,7 @@ import {
 @Component({
   selector: 'app-dashboard-page',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule,RouterLink,FormsModule],
   templateUrl: './dashboard-page.html',
   styleUrl: './dashboard-page.css'
 })
@@ -45,19 +45,18 @@ export class DashboardPage
     private cdr: ChangeDetectorRef
   ) {}
 
-  ngOnInit(): void {
+ngOnInit(): void {
 
-    this.refreshData();
+  this.refreshData();
 
-    this.refreshSubscription =
-      interval(5000)
-        .subscribe(() => {
+  this.refreshSubscription =
+    interval(5000)
+      .subscribe(() => {
 
-          this.refreshData();
+        this.refreshData();
 
-        });
-  }
-
+      });
+}
   ngOnDestroy(): void {
 
     this.refreshSubscription?.unsubscribe();
@@ -74,30 +73,30 @@ export class DashboardPage
     this.loadPendingSections();
   }
 
-  loadSummary(): void {
+loadSummary(): void {
 
-    this.reportService
-      .getTodaySummary()
-      .subscribe({
+  this.reportService.getTodaySummary()
+    .subscribe({
 
-        next: data => {
+      next: data => {
 
-          this.summaries = data;
+        this.summaries = data;
 
-          this.cdr.detectChanges();
-        },
+        this.cdr.detectChanges();
+      },
 
-        error: err => {
+      error: err => {
 
-          console.error(err);
+        console.error(err);
 
-          this.errorMessage =
-            'Failed to load attendance summary';
+        this.errorMessage =
+          'Failed to load attendance summary';
 
-          this.cdr.detectChanges();
-        }
-      });
-  }
+        this.cdr.detectChanges();
+      }
+    });
+}
+
 
   loadPendingSections(): void {
 

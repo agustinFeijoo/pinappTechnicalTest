@@ -68,29 +68,72 @@
     </tr>
   </thead>
 
+ <tbody>
+
+  @for(
+    record of records;
+    track record.attendanceDate
+  ){
+
+  <tr>
+
+    <td>
+      {{ record.attendanceDate }}
+    </td>
+
+    <td>
+      {{ record.status }}
+    </td>
+
+  </tr>
+
+  }
+
+</tbody>
+
+</table>
+
+}
+<h3>Attendance Summary By Student in Current Year</h3>
+
+<table class="data-table">
+
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>First Name</th>
+      <th>Last Name</th>
+      <th>Present</th>
+      <th>Late</th>
+      <th>Absent</th>
+    </tr>
+  </thead>
+
   <tbody>
 
     @for(
-      record of records;
-      track record.date
+      student of studentSummaries;
+      track student.studentId
     ){
 
-    <tr>
+      <tr>
 
-      <td>
-        {{ record.date }}
-      </td>
+        <td>{{ student.studentId }}</td>
 
-      <td>
-        {{ record.status }}
-      </td>
+        <td>{{ student.firstName }}</td>
 
-    </tr>
+        <td>{{ student.lastName }}</td>
+
+        <td>{{ student.presentCount }}</td>
+
+        <td>{{ student.lateCount }}</td>
+
+        <td>{{ student.absentCount }}</td>
+
+      </tr>
 
     }
 
   </tbody>
 
 </table>
-
-}

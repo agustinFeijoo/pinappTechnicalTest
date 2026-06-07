@@ -1,79 +1,152 @@
 <section class="page">
+
   <header class="page-header">
     <div>
-      <a routerLink="/" class="back-link">← Cambiar perfil</a>
-      <h2>Reportes del coordinator</h2>
+      <a routerLink="/" class="back-link">
+        ← Change Profile
+      </a>
+
+      <h2>Coordinator Dashboard</h2>
     </div>
+
     <a routerLink="/coordinator/history" class="btn btn-secondary">
-      Historial por estudiante
+      Student History
     </a>
   </header>
 
   @if (loading) {
-    <p class="muted">Cargando reportes…</p>
+  <p class="muted">
+    Loading reports...
+  </p>
   }
 
   @if (errorMessage) {
-    <p class="error">{{ errorMessage }}</p>
+  <p class="error">
+    {{ errorMessage }}
+  </p>
   }
 
   @if (!loading) {
-    <div class="grid-two">
-      <article class="card">
-        <h3>Resumen de hoy por sección</h3>
-        @if (summaries.length === 0) {
-          <p class="muted">Sin datos de asistencia para hoy.</p>
-        } @else {
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th>Sección</th>
-                <th>Presentes</th>
-                <th>Ausentes</th>
-                <th>Tardanzas</th>
-              </tr>
-            </thead>
-            <tbody>
-              @for (row of summaries; track row.sectionId) {
-                <tr>
-                  <td>
-                    @if (row.gradeName) {
-                      {{ row.gradeName }} —
-                    }
-                    {{ row.sectionName }}
-                  </td>
-                  <td>{{ row.presentCount }}</td>
-                  <td>{{ row.absentCount }}</td>
-                  <td>{{ row.lateCount }}</td>
-                </tr>
+
+
+
+  <div class="grid-two">
+
+
+    <article class="card">
+
+      <h3>
+        Today's Attendance Summary by Section
+      </h3>
+
+      @if (summaries.length === 0) {
+
+      <p class="muted">
+        No attendance records available for today.
+      </p>
+
+      } @else {
+
+      <table class="data-table">
+
+        <thead>
+          <tr>
+            <th>Section</th>
+            <th>Present</th>
+            <th>Absent</th>
+            <th>Late</th>
+          </tr>
+        </thead>
+
+        <tbody>
+
+          @for (
+          row of summaries;
+          track row.sectionId
+          ) {
+
+          <tr>
+
+            <td>
+
+              @if (row.gradeName) {
+              {{ row.gradeName }} —
               }
-            </tbody>
-          </table>
-        }
-      </article>
 
-      <article class="card">
-        <h3>Secciones pendientes hoy</h3>
-        @if (pendingSections.length === 0) {
-          <p class="success">Todas las secciones registraron asistencia.</p>
-        } @else {
-          <ul class="pending-list">
-            @for (section of pendingSections; track section.sectionId) {
-              <li>
-                @if (section.gradeName) {
-                  {{ section.gradeName }} —
-                }
-                {{ section.sectionName }}
-              </li>
-            }
-          </ul>
-        }
-      </article>
-    </div>
+              {{ row.sectionName }}
 
-    <p class="muted live-hint">
-      Los datos se actualizan automáticamente cuando un teacher guarda
-      asistencia.
-    </p>
+            </td>
+
+            <td>
+              {{ row.presentCount }}
+            </td>
+
+            <td>
+              {{ row.absentCount }}
+            </td>
+
+            <td>
+              {{ row.lateCount }}
+            </td>
+
+          </tr>
+
+          }
+
+        </tbody>
+
+      </table>
+
+      }
+
+    </article>
+
+    <article class="card">
+
+      <h3>
+        Sections Pending Attendance
+      </h3>
+
+      @if (pendingSections.length === 0) {
+
+      <p class="success">
+        All sections have submitted attendance.
+      </p>
+
+      } @else {
+
+      <ul class="pending-list">
+
+        @for (
+        section of pendingSections;
+        track section.sectionId
+        ) {
+
+        <li>
+
+          @if (section.gradeName) {
+          {{ section.gradeName }} —
+          }
+
+          {{ section.sectionName }}
+
+        </li>
+
+        }
+
+      </ul>
+
+      }
+
+    </article>
+
+  </div>
+
+  <p class="muted live-hint">
+    Data is updated automatically whenever a teacher
+    submits attendance.
+  </p>
+
   }
+
 </section>

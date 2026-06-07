@@ -32,4 +32,5 @@ public interface AttendanceRecordRepository
             Long sectionId,
             LocalDate attendanceDate
     );
+
 }

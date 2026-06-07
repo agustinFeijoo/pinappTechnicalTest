@@ -6,7 +6,7 @@ import {
 
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-
+import { RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
 
 import {
@@ -23,7 +23,8 @@ import { SectionService } from '../../../core/services/section.service';
   standalone: true,
   imports: [
     CommonModule,
-    FormsModule
+    FormsModule,
+    RouterLink
   ],
   templateUrl: './attendance-page.html',
   styleUrl: './attendance-page.css'
