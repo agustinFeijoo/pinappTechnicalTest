@@ -3,7 +3,6 @@ import {
   OnInit,
   ChangeDetectorRef
 } from '@angular/core';
-
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
@@ -16,7 +15,9 @@ import {
 
 import { AttendanceService }
 from '../../../core/services/attendance.service';
-import { SectionService } from '../../../core/services/section.service';
+
+import { SectionService }
+from '../../../core/services/section.service';
 
 @Component({
   selector: 'app-attendance-page',
@@ -36,57 +37,57 @@ export class AttendancePage implements OnInit {
   selectedSection = 1;
 
   sections = [
-  { id: 1, name: '3A' },
-  { id: 2, name: '3B' },
-  { id: 3, name: '4A' },
-  { id: 4, name: '4B' }
-];
+    { id: 1, name: '3A' },
+    { id: 2, name: '3B' },
+    { id: 3, name: '4A' },
+    { id: 4, name: '4B' }
+  ];
+
   hasChanges = false;
-
   loading = false;
-
   errorMessage = '';
 
-constructor(
-  private attendanceService: AttendanceService,
-  private sectionService: SectionService,
-  private cdr: ChangeDetectorRef
-) {}
-ngOnInit(): void {
+  constructor(
+    private attendanceService: AttendanceService,
+    private sectionService: SectionService,
+    private cdr: ChangeDetectorRef
+  ) {}
 
-  this.sectionService
-    .getSections()
-    .subscribe({
+  ngOnInit(): void {
 
-      next: sections => {
+    this.sectionService
+      .getSections()
+      .subscribe({
 
-        this.sections = sections;
+        next: sections => {
 
-        if (sections.length > 0) {
+          this.sections = sections;
 
-          this.selectedSection =
-            sections[0].id;
+          if (sections.length > 0) {
 
-          this.loadAttendance();
+            this.selectedSection =
+              sections[0].id;
+
+            this.loadAttendance();
+          }
+
+          this.cdr.detectChanges();
+        },
+
+        error: error => {
+
+          console.error(error);
+
+          this.errorMessage =
+            'Failed to load sections';
+
+          this.cdr.detectChanges();
         }
-      },
-
-      error: error => {
-
-        console.error(error);
-
-        this.errorMessage =
-          'Failed to load sections';
-      }
-    });
-}
+      });
+  }
 
   loadAttendance(): void {
-
-    console.log('Loading attendance...');
-
     this.loading = true;
-
     this.errorMessage = '';
 
     this.attendanceService
@@ -97,27 +98,17 @@ ngOnInit(): void {
           this.loading = false;
 
           this.cdr.detectChanges();
-
-          console.log(
-            'Loading finished'
-          );
         })
       )
       .subscribe({
 
-        next: (data) => {
-
-          console.log(
-            'Attendance received',
-            data
-          );
-
+        next: data => {
           this.attendance = data;
 
           this.cdr.detectChanges();
         },
 
-        error: (error) => {
+        error: error => {
 
           console.error(error);
 
@@ -143,14 +134,14 @@ ngOnInit(): void {
 
     this.hasChanges = true;
   }
+
   onSectionChange(): void {
 
-  this.hasChanges = false;
+    this.hasChanges = false;
+    this.attendance = null;
 
-  this.attendance = null;
-
-  this.loadAttendance();
-}
+    this.loadAttendance();
+  }
 
   save(): void {
 
@@ -159,19 +150,16 @@ ngOnInit(): void {
     }
 
     this.loading = true;
+    this.errorMessage = '';
 
-    const request = {
-      students: this.attendance.students
-        .filter(
-          student =>
-            student.status !== null
-        )
-        .map(student => ({
-          studentId: student.studentId,
-          status: student.status!
-        }))
-    };
-
+const request = {
+  records: this.attendance.students
+    .filter(student => student.status !== null)
+    .map(student => ({
+      studentId: student.studentId,
+      status: student.status!
+    }))
+};
     this.attendanceService
       .saveAttendance(
         this.selectedSection,
@@ -198,12 +186,14 @@ ngOnInit(): void {
           this.loadAttendance();
         },
 
-        error: (error) => {
+        error: error => {
 
           console.error(error);
 
           this.errorMessage =
             'Failed to save attendance';
+
+          this.cdr.detectChanges();
         }
       });
   }

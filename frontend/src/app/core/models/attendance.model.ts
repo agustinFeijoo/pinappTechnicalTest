@@ -22,5 +22,5 @@ export interface AttendanceStudentRequest {
 }
 
 export interface SaveAttendanceRequest {
-  students: AttendanceStudentRequest[];
+  records: AttendanceStudentRequest[];
 }

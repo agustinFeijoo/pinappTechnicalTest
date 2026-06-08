@@ -20,35 +20,23 @@ public class ReportController {
     private final ReportService reportService;
 
     @GetMapping("/summary/today")
-    public List<SectionSummaryResponse>
-    getTodaySummary() {
+    public List<SectionSummaryResponse> getTodaySummary() {
 
         return reportService.getTodaySummary();
     }
 
     @GetMapping("/pending-sections")
     public List<PendingSectionResponse> getPendingSections() {
-        return reportService.getPendingSections();
-    }
 
-    @GetMapping("/summary")
-    public List<SectionSummaryResponse> getSummary(
-            @RequestParam LocalDate startDate,
-            @RequestParam LocalDate endDate
-    ) {
-        return reportService.getTodaySummary();
+        return reportService.getPendingSections();
     }
 
     @GetMapping("/students/{studentId}/history")
     public List<StudentHistoryResponse> getStudentHistory(
-
-            @PathVariable
-            Long studentId,
-
+            @PathVariable Long studentId,
             @RequestParam
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
             LocalDate startDate,
-
             @RequestParam
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
             LocalDate endDate
@@ -62,16 +50,18 @@ public class ReportController {
     }
 
     @GetMapping("/students-summary")
-    public List<StudentAttendanceSummaryResponse>
-    getStudentsSummary(
-            @RequestParam LocalDate startDate,
-            @RequestParam LocalDate endDate
+    public List<StudentAttendanceSummaryResponse> getStudentsSummary(
+            @RequestParam
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+            LocalDate startDate,
+            @RequestParam
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+            LocalDate endDate
     ) {
 
-        return reportService
-                .getStudentAttendanceSummary(
-                        startDate,
-                        endDate
-                );
+        return reportService.getStudentsSummary(
+                startDate,
+                endDate
+        );
     }
 }

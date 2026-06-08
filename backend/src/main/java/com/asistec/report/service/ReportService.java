@@ -9,19 +9,15 @@ import java.time.LocalDate;
 import java.util.List;
 
 public interface ReportService {
-
-
     List<SectionSummaryResponse> getTodaySummary();
-
     List<PendingSectionResponse> getPendingSections();
-
     List<StudentHistoryResponse> getStudentHistory(
             Long studentId,
             LocalDate startDate,
             LocalDate endDate
     );
-    List<StudentAttendanceSummaryResponse>
-    getStudentAttendanceSummary(
+
+    List<StudentAttendanceSummaryResponse> getStudentsSummary(
             LocalDate startDate,
             LocalDate endDate
     );

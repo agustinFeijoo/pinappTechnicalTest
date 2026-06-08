@@ -1,17 +1,23 @@
 import {
   Component,
   ChangeDetectorRef,
-  OnInit
+  OnInit,
+  OnDestroy
 } from '@angular/core';
+
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Subscription } from 'rxjs';
 
-import { ReportService } from '../../../core/services/report.service';
+
+import { ReportService }
+from '../../../core/services/report.service';
 
 import {
   StudentHistoryRecord,
   StudentAttendanceSummary
 } from '../../../core/models/report.model';
+import { AttendanceSseService } from '../../../core/services/attendanceSSE.service';
 
 @Component({
   selector: 'app-student-history-page',
@@ -23,9 +29,11 @@ import {
   templateUrl: './student-history-page.html',
   styleUrl: './student-history-page.css'
 })
-export class StudentHistoryPage implements OnInit {
+export class StudentHistoryPage
+  implements OnInit, OnDestroy {
 
   studentId = 1;
+
   startDate = '';
   endDate = '';
 
@@ -35,8 +43,11 @@ export class StudentHistoryPage implements OnInit {
   loading = false;
   errorMessage = '';
 
+  private sseSubscription?: Subscription;
+
   constructor(
     private reportService: ReportService,
+    private attendanceSseService: AttendanceSseService,
     private cdr: ChangeDetectorRef
   ) {}
 
@@ -51,6 +62,38 @@ export class StudentHistoryPage implements OnInit {
     this.endDate = today;
 
     this.loadStudentSummary();
+
+    this.sseSubscription =
+      this.attendanceSseService
+        .connect()
+        .subscribe({
+
+          next: () => {
+            this.loadStudentSummary();
+
+            if (
+              this.studentId &&
+              this.startDate &&
+              this.endDate
+            ) {
+
+              this.loadStudentHistory();
+            }
+          },
+
+          error: error => {
+
+            console.error(
+              'SSE connection error',
+              error
+            );
+          }
+        });
+  }
+
+  ngOnDestroy(): void {
+
+    this.sseSubscription?.unsubscribe();
   }
 
   search(): void {
@@ -71,6 +114,11 @@ export class StudentHistoryPage implements OnInit {
     this.errorMessage = '';
     this.records = [];
 
+    this.loadStudentHistory();
+  }
+
+  loadStudentHistory(): void {
+
     this.reportService
       .getStudentHistory(
         this.studentId,
@@ -79,20 +127,15 @@ export class StudentHistoryPage implements OnInit {
       )
       .subscribe({
 
-        next: (historyData) => {
+        next: data => {
+          this.records = data ?? [];
 
-          console.log(
-            'History response:',
-            historyData
-          );
-
-          this.records = historyData;
           this.loading = false;
 
           this.cdr.detectChanges();
         },
 
-        error: (error) => {
+        error: error => {
 
           console.error(error);
 
@@ -126,19 +169,14 @@ export class StudentHistoryPage implements OnInit {
       )
       .subscribe({
 
-        next: (data) => {
-
-          console.log(
-            'Summary response:',
-            data
-          );
+        next: data => {
 
           this.studentSummaries = data;
 
           this.cdr.detectChanges();
         },
 
-        error: (error) => {
+        error: error => {
 
           console.error(error);
         }

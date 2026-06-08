@@ -18,7 +18,7 @@ Business rules:
 4. Students must belong to the selected section.
 5. Attendance updates must be persisted atomically.
 
----
+
 
 # Attendance Registration Flow
 
@@ -87,7 +87,7 @@ After successful persistence, the system publishes an update event so coordinato
 
 The backend returns a successful response to the frontend.
 
----
+
 
 # Save Attendance Endpoint
 
@@ -105,7 +105,7 @@ PUT
 
 ```json
 {
-  "students": [
+  "records": [
     {
       "studentId": 1,
       "status": "PRESENT"
@@ -118,7 +118,7 @@ PUT
 }
 ```
 
----
+
 
 ## Successful Response
 
@@ -130,7 +130,7 @@ PUT
 }
 ```
 
----
+
 
 ## Error Responses
 
@@ -146,7 +146,7 @@ Example:
 }
 ```
 
----
+
 
 ### HTTP 404 Not Found
 
@@ -160,7 +160,7 @@ Example:
 }
 ```
 
----
+
 
 ### HTTP 409 Conflict
 
@@ -174,13 +174,13 @@ Example:
 }
 ```
 
----
+
 
 ### HTTP 500 Internal Server Error
 
 Returned when an unexpected server error occurs.
 
----
+
 
 # Edge Cases
 
@@ -196,7 +196,7 @@ Expected Behavior:
 * New records are not duplicated.
 * The latest status becomes the current status.
 
----
+
 
 ## Edge Case 2: Section Does Not Exist
 
@@ -209,7 +209,7 @@ Expected Behavior:
 * Request is rejected.
 * HTTP 404 Not Found is returned.
 
----
+
 
 ## Edge Case 3: Student Does Not Belong to the Selected Section
 
@@ -223,22 +223,8 @@ Expected Behavior:
 * No attendance data is persisted.
 * HTTP 409 Conflict is returned.
 
----
 
-## Edge Case 4: Attempt to Modify Attendance from a Previous Day
-
-Scenario:
-
-A user attempts to update attendance records from a date earlier than the current day.
-
-Expected Behavior:
-
-* Modification is rejected.
-* HTTP 409 Conflict is returned.
-
----
-
-## Edge Case 5: Invalid Date Range in Student Attendance Report
+## Edge Case 4: Invalid Date Range in Student Attendance Report
 
 Scenario:
 
@@ -250,7 +236,7 @@ Expected Behavior:
 * HTTP 400 Bad Request is returned.
 * Validation message indicates the date range is invalid.
 
----
+
 
 # Assumptions
 

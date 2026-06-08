@@ -9,6 +9,7 @@ import com.asistec.attendance.repository.SectionRepository;
 import com.asistec.attendance.repository.StudentRepository;
 import com.asistec.common.exception.BusinessRuleException;
 import com.asistec.common.exception.ResourceNotFoundException;
+import com.asistec.attendance.dto.SaveAttendanceRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -89,7 +90,7 @@ public class AttendanceServiceImpl implements AttendanceService {
                                 "Section not found"
                         ));
 
-        for (AttendanceStudentRequest item : request.students()) {
+        for (AttendanceStudentRequest item : request.records()) {
 
             Student student = studentRepository.findById(
                     item.studentId()
@@ -126,6 +127,11 @@ public class AttendanceServiceImpl implements AttendanceService {
             attendanceRepository.save(record);
         }
 
-        attendanceEventService.publishAttendanceUpdated();
+        try {
+            attendanceEventService.publishAttendanceUpdated();
+        } catch (Exception ex) {
+            // IMPORTANT: do not break request if SSE fails
+            System.out.println("Failed to publish attendance SSE event "+ex);
+        }
     }
 }

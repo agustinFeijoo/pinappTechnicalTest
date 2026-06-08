@@ -2,6 +2,7 @@ package com.asistec.common.exception;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.time.LocalDateTime;
 
+@Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -60,9 +62,7 @@ public class GlobalExceptionHandler {
                 .stream()
                 .findFirst()
                 .map(error ->
-                        error.getField()
-                                + " "
-                                + error.getDefaultMessage())
+                        error.getField() + " " + error.getDefaultMessage())
                 .orElse("Validation error");
 
         ErrorResponse error = new ErrorResponse(
@@ -101,16 +101,17 @@ public class GlobalExceptionHandler {
             HttpServletRequest request
     ) {
 
+        log.error("Unexpected error", ex);
+
         ErrorResponse error = new ErrorResponse(
                 LocalDateTime.now(),
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),
                 HttpStatus.INTERNAL_SERVER_ERROR.name(),
-                ex.getMessage(),
+                "An unexpected error occurred",
                 request.getRequestURI()
         );
 
-        return ResponseEntity.status(
-                HttpStatus.INTERNAL_SERVER_ERROR
-        ).body(error);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(error);
     }
 }

@@ -2,7 +2,6 @@ package com.asistec.report.service;
 
 import com.asistec.attendance.entity.AttendanceRecord;
 import com.asistec.attendance.entity.AttendanceStatus;
-import com.asistec.attendance.entity.Section;
 import com.asistec.attendance.repository.AttendanceRecordRepository;
 import com.asistec.attendance.repository.SectionRepository;
 import com.asistec.attendance.repository.StudentRepository;
@@ -18,94 +17,74 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class ReportServiceImpl
-        implements ReportService {
+public class ReportServiceImpl implements ReportService {
 
+    private final AttendanceRecordRepository attendanceRepository;
+    private final StudentRepository studentRepository;
     private final SectionRepository sectionRepository;
 
-    private final StudentRepository studentRepository;
-
-    private final AttendanceRecordRepository
-            attendanceRecordRepository;
-
     @Override
-    public List<SectionSummaryResponse>
-    getTodaySummary() {
+    public List<SectionSummaryResponse> getTodaySummary() {
 
         LocalDate today = LocalDate.now();
 
         return sectionRepository.findAll()
                 .stream()
-                .map(section -> buildSummary(
-                        section,
-                        today
-                ))
+                .map(section -> {
+
+                    List<AttendanceRecord> records =
+                            attendanceRepository
+                                    .findByStudentSectionIdAndAttendanceDate(
+                                            section.getId(),
+                                            today
+                                    );
+
+                    long presentCount =
+                            records.stream()
+                                    .filter(r ->
+                                            r.getStatus() == AttendanceStatus.PRESENT)
+                                    .count();
+
+                    long lateCount =
+                            records.stream()
+                                    .filter(r ->
+                                            r.getStatus() == AttendanceStatus.LATE)
+                                    .count();
+
+                    long absentCount =
+                            records.stream()
+                                    .filter(r ->
+                                            r.getStatus() == AttendanceStatus.ABSENT)
+                                    .count();
+
+                    return new SectionSummaryResponse(
+                            section.getId(),
+                            section.getName(),
+                            presentCount,
+                            absentCount,
+                            lateCount
+                    );
+                })
                 .toList();
     }
-
-    private SectionSummaryResponse buildSummary(
-            Section section,
-            LocalDate today
-    ) {
-
-        List<AttendanceRecord> records =
-                studentRepository
-                        .findBySectionId(section.getId())
-                        .stream()
-                        .flatMap(student ->
-                                attendanceRecordRepository
-                                        .findByStudentIdAndAttendanceDate(
-                                                student.getId(),
-                                                today
-                                        )
-                                        .stream()
-                        )
-                        .toList();
-
-        long presentCount =
-                records.stream()
-                        .filter(record ->
-                                record.getStatus()
-                                        == AttendanceStatus.PRESENT
-                        )
-                        .count();
-
-        long absentCount =
-                records.stream()
-                        .filter(record ->
-                                record.getStatus()
-                                        == AttendanceStatus.ABSENT
-                        )
-                        .count();
-
-        long lateCount =
-                records.stream()
-                        .filter(record ->
-                                record.getStatus()
-                                        == AttendanceStatus.LATE
-                        )
-                        .count();
-
-        return new SectionSummaryResponse(
-                section.getId(),
-                section.getName(),
-                presentCount,
-                absentCount,
-                lateCount
-        );
-    }
-
     @Override
-    public List<PendingSectionResponse>
-    getPendingSections() {
+    public List<PendingSectionResponse> getPendingSections() {
 
         LocalDate today = LocalDate.now();
 
         return sectionRepository.findAll()
                 .stream()
-                .filter(section ->
-                        isPending(section, today)
-                )
+                .filter(section -> {
+
+                    List<AttendanceRecord> records =
+                            attendanceRepository
+                                    .findByStudentSectionIdAndAttendanceDate(
+                                            section.getId(),
+                                            today
+                                    );
+
+                    return records.isEmpty();
+                })
                 .map(section ->
                         new PendingSectionResponse(
                                 section.getId(),
@@ -115,26 +94,6 @@ public class ReportServiceImpl
                 .toList();
     }
 
-    private boolean isPending(
-            Section section,
-            LocalDate today
-    ) {
-
-        return studentRepository
-                .findBySectionId(section.getId())
-                .stream()
-                .flatMap(student ->
-                        attendanceRecordRepository
-                                .findByStudentIdAndAttendanceDate(
-                                        student.getId(),
-                                        today
-                                )
-                                .stream()
-                )
-                .findAny()
-                .isEmpty();
-    }
-
     @Override
     public List<StudentHistoryResponse> getStudentHistory(
             Long studentId,
@@ -142,28 +101,26 @@ public class ReportServiceImpl
             LocalDate endDate
     ) {
 
-        return attendanceRecordRepository
+        return attendanceRepository
                 .findByStudentIdAndAttendanceDateBetween(
                         studentId,
                         startDate,
                         endDate
                 )
                 .stream()
-                .map(record ->
-                        new StudentHistoryResponse(
-                                record.getStudent().getId(),
-                                record.getStudent().getFirstName()
-                                        + " "
-                                        + record.getStudent().getLastName(),
-                                record.getAttendanceDate(),
-                                record.getStatus()
-                        )
-                )
+                .map(record -> new StudentHistoryResponse(
+                        record.getStudent().getId(),
+                        record.getStudent().getFirstName()
+                                + " "
+                                + record.getStudent().getLastName(),
+                        record.getAttendanceDate(),
+                        record.getStatus()
+                ))
                 .toList();
     }
+
     @Override
-    public List<StudentAttendanceSummaryResponse>
-    getStudentAttendanceSummary(
+    public List<StudentAttendanceSummaryResponse> getStudentsSummary(
             LocalDate startDate,
             LocalDate endDate
     ) {
@@ -173,44 +130,38 @@ public class ReportServiceImpl
                 .map(student -> {
 
                     List<AttendanceRecord> records =
-                            attendanceRecordRepository
+                            attendanceRepository
                                     .findByStudentIdAndAttendanceDateBetween(
                                             student.getId(),
                                             startDate,
                                             endDate
                                     );
 
-                    long present =
+                    long presentCount =
                             records.stream()
                                     .filter(r ->
-                                            r.getStatus()
-                                                    == AttendanceStatus.PRESENT
-                                    )
+                                            r.getStatus() == AttendanceStatus.PRESENT)
                                     .count();
 
-                    long late =
+                    long lateCount =
                             records.stream()
                                     .filter(r ->
-                                            r.getStatus()
-                                                    == AttendanceStatus.LATE
-                                    )
+                                            r.getStatus() == AttendanceStatus.LATE)
                                     .count();
 
-                    long absent =
+                    long absentCount =
                             records.stream()
                                     .filter(r ->
-                                            r.getStatus()
-                                                    == AttendanceStatus.ABSENT
-                                    )
+                                            r.getStatus() == AttendanceStatus.ABSENT)
                                     .count();
 
                     return new StudentAttendanceSummaryResponse(
                             student.getId(),
                             student.getFirstName(),
                             student.getLastName(),
-                            present,
-                            late,
-                            absent
+                            presentCount,
+                            lateCount,
+                            absentCount
                     );
                 })
                 .toList();

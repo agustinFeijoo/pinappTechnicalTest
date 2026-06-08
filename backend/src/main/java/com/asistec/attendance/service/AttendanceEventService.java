@@ -13,10 +13,16 @@ public class AttendanceEventService {
     private final List<SseEmitter> emitters =
             new CopyOnWriteArrayList<>();
 
-    public SseEmitter subscribe() {
+    public SseEmitter subscribe() throws IOException {
 
         SseEmitter emitter =
-                new SseEmitter(Long.MAX_VALUE);
+                new SseEmitter(30 * 60 * 1000L);
+
+        emitter.send(
+                SseEmitter.event()
+                        .name("heartbeat")
+                        .data("ping")
+        );
 
         emitters.add(emitter);
 
@@ -34,22 +40,21 @@ public class AttendanceEventService {
 
     public void publishAttendanceUpdated() {
 
-        emitters.forEach(emitter -> {
-
+        for (SseEmitter emitter : emitters) {
             try {
-
                 emitter.send(
                         SseEmitter.event()
                                 .name("attendance-updated")
                                 .data("updated")
                 );
 
-            } catch (IOException ex) {
+            } catch (IOException | IllegalStateException ex) {
+                try {
+                    emitter.complete();
+                } catch (Exception ignored) {}
 
-                emitter.complete();
-
+                emitters.remove(emitter);
             }
-
-        });
+        }
     }
 }

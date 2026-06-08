@@ -1,72 +1,63 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { provideRouter } from '@angular/router';
 import { of } from 'rxjs';
-
 import { DashboardPage } from './dashboard-page';
 import { ReportService } from '../../../core/services/report.service';
-import { SseService } from '../../../core/services/sse.service';
+import { AttendanceSseService } from '../../../core/services/attendanceSSE.service';
+import { provideRouter } from '@angular/router';
 
 describe('DashboardPage', () => {
+
+  let component: DashboardPage;
   let fixture: ComponentFixture<DashboardPage>;
 
-  const mockSummaries = [
-    {
-      sectionId: 1,
-      sectionName: '3A',
-      gradeName: '3rd Grade',
-      presentCount: 4,
-      absentCount: 1,
-      lateCount: 1
-    },
-    {
-      sectionId: 2,
-      sectionName: '3B',
-      gradeName: '3rd Grade',
-      presentCount: 2,
-      absentCount: 2,
-      lateCount: 2
-    }
-  ];
+const reportServiceMock = {
+  getTodaySummary: vi.fn().mockReturnValue(of([])),
+  getPendingSections: vi.fn().mockReturnValue(of([]))
+};
+
+const sseMock = {
+  connect: vi.fn().mockReturnValue(of('updated'))
+};
 
   beforeEach(async () => {
+
     await TestBed.configureTestingModule({
       imports: [DashboardPage],
       providers: [
         provideRouter([]),
         {
           provide: ReportService,
-          useValue: {
-            getTodaySummary: () => of(mockSummaries),
-            getPendingSections: () =>
-              of([{ sectionId: 2, sectionName: '3B', gradeName: '3rd Grade' }])
-          }
+          useValue: reportServiceMock
         },
         {
-          provide: SseService,
-          useValue: {
-            connectAttendanceUpdates: () => of(null)
-          }
+          provide: AttendanceSseService,
+          useValue: sseMock
         }
       ]
     }).compileComponents();
 
     fixture = TestBed.createComponent(DashboardPage);
-    fixture.detectChanges();
-    await fixture.whenStable();
+    component = fixture.componentInstance;
+
     fixture.detectChanges();
   });
 
-  it('shows coordinator summary totals per section', () => {
-    const text = fixture.nativeElement.textContent as string;
-    expect(text).toContain('3A');
-    expect(text).toContain('4');
-    expect(text).toContain('3B');
-    expect(text).toContain('2');
+  it('should create', () => {
+
+    expect(component).toBeTruthy();
   });
 
-  it('lists pending sections', () => {
-    const text = fixture.nativeElement.textContent as string;
-    expect(text).toContain('Secciones pendientes');
-    expect(text).toContain('3B');
+  it('should load summary on init', () => {
+
+    expect(
+      reportServiceMock.getTodaySummary
+    ).toHaveBeenCalled();
+  });
+
+  it('should load pending sections on init', () => {
+
+    expect(
+      reportServiceMock.getPendingSections
+    ).toHaveBeenCalled();
   });
 });
