@@ -372,6 +372,7 @@ The following items were intentionally excluded to keep the solution focused on 
 
 With more time I would:
 
+* Show toast errors and improve styles of alerts
 * Implement JWT authentication.
 * Add optimistic locking to handle concurrent updates.
 * Introduce a CQRS-based reporting layer.
