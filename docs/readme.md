@@ -76,7 +76,7 @@ Frontend will be available at:
 
 http://localhost:4200
 
-
+Link to prod https://pinapp-test-agustin-53f71.web.app/
 
 
 ## Run Tests
