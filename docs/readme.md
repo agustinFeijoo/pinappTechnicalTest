@@ -382,7 +382,7 @@ With more time I would:
 * Add centralized logging and monitoring.
 * Add end-to-end tests with Cypress.
 * Deploy the application using a CI/CD pipeline.
-
+* Add spinners
 
 
 # Assumptions
